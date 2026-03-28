@@ -1,18 +1,29 @@
+
+
 # 🛡️ Codex Endless Research Loop
 
 > **Turn OpenAI Codex into a 24/7 autonomous auditor.**
 
-This repository contains a specialized **"Recursive Research Loop"** designed for the **OpenAI Codex CLI**. By feeding the contents of `loop.md` into your base prompt, you trigger a long-lived, autonomous, and **read-only** audit cycle that documents your codebase indefinitely.
+This repository provides a **Recursive Research Loop** for the **OpenAI Codex CLI**. By appending the `loop.md` logic to your task definition, you trigger a long-lived, autonomous audit cycle that documents and researches your codebase indefinitely.
 
-## 🚀 The "Endless" Concept
+## 🚀 How to Use
 
-Most AI interactions are one-off tasks. This setup changes the paradigm:
-1. **The Engine (`loop.sh`)**: A bash wrapper that maintains the execution environment, handles authentication overrides, and ensures the process restarts if interrupted.
-2. **The Logic (`loop.md`)**: The "brain" of the operation. When appended to your prompt, it instructs Codex to:
-    - Scan the repository for the next unresolved "story" or "audit task."
-    - Execute a deep-dive research session (optionally with web search).
-    - Write a detailed report.
-    - **Self-Trigger**: Mark the task as complete and immediately move to the next, creating a 24-hour productivity cycle.
+To start the endless loop, follow these two steps:
+
+### 1. Define Your Core Task
+Prepare a base prompt that clearly defines the scope of work. For the loop to function effectively, your prompt **must** include:
+* **Role Definition**: (e.g., "You are a Senior Security Auditor.")
+* **Task Definition**: (e.g., "Analyze the repository for SQL injection vulnerabilities.")
+* **Task Content**: The specific files or modules to be examined.
+* **Acceptance Criteria**: **(Crucial)** Define exactly what the output should look like (e.g., "Generate a Markdown table with the filename, line number, and risk level").
+
+### 2. Inject the Loop Logic
+Append the contents of `loop.md` to the end of your base prompt. 
+
+When you input this combined prompt into the Codex CLI, the agent will:
+1.  Complete the current task based on your criteria.
+2.  Save the results.
+3.  **Self-Trigger**: Automatically scan for the next task or deeper context, running without interruption until the queue is exhausted.
 
 ---
 
@@ -20,58 +31,38 @@ Most AI interactions are one-off tasks. This setup changes the paradigm:
 
 | File | Role | Description |
 | :--- | :--- | :--- |
-| **`loop.sh`** | **The Runner** | Manages the CLI execution, sets `CODEX_INTERNAL_ORIGINATOR_OVERRIDE` for Desktop limits, and enforces `-s read-only` safety. |
-| **`loop.md`** | **The Logic** | The recursive prompt. It contains the audit standards, file-reading rules, and the "Self-Perpetuating" instructions. |
+| **`loop.sh`** | **The Runner** | A bash wrapper that manages CLI execution, handles `CODEX_INTERNAL_ORIGINATOR_OVERRIDE`, and ensures the process restarts if interrupted. |
+| **`loop.md`** | **The Logic** | The recursive "brain." It contains instructions for task-switching and self-perpetuation. |
 
 ---
 
-## 🛠️ Setup & Prerequisites
+## 🛠️ Execution Example
 
-- **Codex CLI**: Installed and authenticated (`codex auth login`).
-- **Permissions**: The loop runs in **Read-Only** mode. It identifies problems but *never* modifies your source code.
-- **Dependencies**: `jq` (for parsing task states) and `bash`.
+Once your prompt is ready, run the shell script to begin the autonomous cycle:
 
----
-
-## 📖 Usage: How to Start the Loop
-
-The magic happens when you combine your project context with the `loop.md` logic.
-
-### 1. Basic Execution
-Run the shell script to start the autonomous cycle:
 ```bash
 chmod +x loop.sh
 ./loop.sh
 ```
 
-### 2. How it works internally
-The script takes your base project prompt and appends the contents of `loop.md`. This tells the agent:
-> *"Finish the current audit task, save the result to `audit/*.md`, and then look for the next task in the queue. Do not stop until the queue is empty."*
-
-### 3. Monitoring the 24/7 Work
-Since the agent works in the background, you can tail the logs to see what it's thinking:
-```bash
-# Watch high-level progress
-tail -f events.log
-
-# Watch the raw Codex reasoning and output
-tail -f run.log
-```
+The script appends `loop.md` to your project context, instructing the agent: 
+> *"Finish the current audit task, save the result, and immediately move to the next. Do not stop."*
 
 ---
 
-## ⚙️ Customization
+## ⚙️ Monitoring & Safety
 
-### Tailoring the "Brain" (`loop.md`)
-To change *how* the agent audits your code, edit `loop.md`:
-- **Define Quality Gates**: Tell it to look for memory leaks, API inconsistencies, or lack of documentation.
-- **Set Output Format**: Force the agent to write reports in a specific structure.
+* **Read-Only Safety**: The loop is configured with `-s read-only`. It identifies issues and writes reports but **never** modifies your source code.
+* **Live Logs**: Since the agent works in the background, you can monitor its reasoning in real-time:
+    ```bash
+    # Watch high-level progress
+    tail -f events.log
 
-### Tuning the "Engine" (`loop.sh`)
-- **Reasoning Effort**: Adjust the `REASONING_EFFORT` variable to balance between speed and deep architectural thinking.
-- **Search**: Toggle `--search` to allow the agent to look up modern libraries or documentation online.
+    # Watch raw Codex reasoning
+    tail -f run.log
+    ```
 
 ---
 
-## ⚠️ Important Note on Usage
-Because this loop is designed to run **24/7**, keep an eye on your API usage. This script utilizes the `Codex Desktop` origin override to take advantage of specific rate limits, but it will still consume tokens continuously as it "researches" your code.
+## ⚠️ API & Token Usage
+Because this loop is designed to run **24/7**, it will consume tokens continuously. Monitor your usage dashboard regularly, even when using the `Codex Desktop` origin override.
