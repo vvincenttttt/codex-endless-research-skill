@@ -1,7 +1,3 @@
-This README focuses on the **"Infinite Loop"** mechanism, emphasizing how `loop.md` acts as the recursive engine to keep Codex working 24/7.
-
----
-
 # 🛡️ Codex Endless Research Loop
 
 > **Turn OpenAI Codex into a 24/7 autonomous auditor.**
