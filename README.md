@@ -25,44 +25,6 @@ When you input this combined prompt into the Codex CLI, the agent will:
 2.  Save the results.
 3.  **Self-Trigger**: Automatically scan for the next task or deeper context, running without interruption until the queue is exhausted.
 
----
-
-## 📂 Core Files
-
-| File | Role | Description |
-| :--- | :--- | :--- |
-| **`loop.sh`** | **The Runner** | A bash wrapper that manages CLI execution, handles `CODEX_INTERNAL_ORIGINATOR_OVERRIDE`, and ensures the process restarts if interrupted. |
-| **`loop.md`** | **The Logic** | The recursive "brain." It contains instructions for task-switching and self-perpetuation. |
-
----
-
-## 🛠️ Execution Example
-
-Once your prompt is ready, run the shell script to begin the autonomous cycle:
-
-```bash
-chmod +x loop.sh
-./loop.sh
-```
-
-The script appends `loop.md` to your project context, instructing the agent: 
-> *"Finish the current audit task, save the result, and immediately move to the next. Do not stop."*
-
----
-
-## ⚙️ Monitoring & Safety
-
-* **Read-Only Safety**: The loop is configured with `-s read-only`. It identifies issues and writes reports but **never** modifies your source code.
-* **Live Logs**: Since the agent works in the background, you can monitor its reasoning in real-time:
-    ```bash
-    # Watch high-level progress
-    tail -f events.log
-
-    # Watch raw Codex reasoning
-    tail -f run.log
-    ```
-
----
 
 ## ⚠️ API & Token Usage
 Because this loop is designed to run **24/7**, it will consume tokens continuously. Monitor your usage dashboard regularly, even when using the `Codex Desktop` origin override.
